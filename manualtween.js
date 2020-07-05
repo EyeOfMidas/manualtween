@@ -17,9 +17,11 @@ Tween.create = (obj, targetProperties, duration, easing, completedCallback) => {
 };
 Tween.cancel = (tweenId) => {
 	let tween = Tween.activeTweens.find(tween => tweenId == tween.id);
-	let index = Tween.activeTweens.indexOf(tween);
-	Tween.activeTweens.splice(index, 1);
-	return tween;
+	if(tween) {
+		let index = Tween.activeTweens.indexOf(tween);
+		Tween.activeTweens.splice(index, 1);
+		return tween;
+	}
 };
 Tween.stop = (tweenId) => {
 	let tween = Tween.cancel(tweenId);

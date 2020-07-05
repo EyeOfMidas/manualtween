@@ -21,6 +21,9 @@
     <h2>Example 3</h2>
     <p>An exponential tween, delayed using setTimeout, acting on a dom element's width and updated using setInterval</p>
     <div id="example3" style="width: 300px; height: 150px; background-color: #283848; color: white;">Example 3 div</div>
+    <h2>Example 4</h2>
+    <p>Objects that tween to move and cancel when they collide</p>
+    <canvas id="example4"></canvas>
 <script src="./manualtween.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", event => {
@@ -51,17 +54,20 @@
         example1Init();
         example2Init();
         example3Init();
+        example4Init();
     }
 
     function update() {
         example1Update();
         example2Update();
+        example4Update();
         Tween.update();
     }
 
     function draw(contextCollection) {
         example1Draw(contextCollection['example1']);
         example2Draw(contextCollection['example2']);
+        example4Draw(contextCollection['example4']);
     }
 
     function onResize() {
@@ -171,7 +177,6 @@ function example3Init() {
 }
 
 function example3Width1() {
-    console.log(document.body.style);
     let windowMargin = 24;
 
     setTimeout(() => {
@@ -190,6 +195,87 @@ function example3Update() {
 }
 
 function example3Draw(context) {
+}
+
+//Example 4
+
+let example4Shape1 = {position: {x: 50, y: 50}, radius: 10, colliding: false};
+let example4Shape2 = {position: {x: 250, y: 100}, radius: 10, colliding: false};
+let example4Shape1TweenId = 0;
+let example4Shape2TweenId = 0;
+
+function example4Init() {
+    canvasCollection['example4'] = document.getElementById("example4");
+    contextCollection['example4'] = canvasCollection['example4'].getContext('2d');
+
+    example4Shape1 = {position: {x: 50, y: 50}, radius: 10, colliding: false};
+    example4Shape2 = {position: {x: 250, y: 100}, radius: 10, colliding: false};
+
+    example4Shape1Position1();
+    example4Shape2Position1();
+}
+
+function example4Shape1Position1() {
+    example4Shape1TweenId = Tween.create(example4Shape1, {position: {x: 250, y: 100}}, 2000, Tween.Easing.Bounce.EaseOut, example4Shape1Position2);
+}
+
+function example4Shape1Position2() {
+    example4Shape1TweenId = Tween.create(example4Shape1, {position: {x: 50, y: 50}}, 2000, Tween.Easing.Bounce.EaseOut, () => {
+        example4Shape1.colliding = false;
+        example4Shape1Position1();
+    });
+}
+
+function example4Shape2Position1() {
+    example4Shape2TweenId = Tween.create(example4Shape2, {position: {x: 50, y: 50}}, 2000, Tween.Easing.Bounce.EaseOut, example4Shape2Position2);
+}
+
+function example4Shape2Position2() {
+    example4Shape2TweenId = Tween.create(example4Shape2, {position: {x: 250, y: 100}}, 2000, Tween.Easing.Bounce.EaseOut, () => {
+        example4Shape2.colliding = false;
+        example4Shape2Position1();
+     });
+}
+
+function distance(position1, position2) {
+    return Math.sqrt(
+		Math.pow(position1.x - position2.x, 2) +
+		Math.pow(position1.y - position2.y, 2)
+	);
+}
+
+function example4Update() 
+{
+    if(example4Shape1.colliding || example4Shape2.colliding) {
+        return;
+    }
+
+    if(distance(example4Shape1.position, example4Shape2.position) <= example4Shape1.radius) {
+        example4Shape1.colliding = true;
+        example4Shape2.colliding = true;
+        Tween.cancel(example4Shape1TweenId);
+        Tween.cancel(example4Shape2TweenId);
+        example4Shape1Position2();
+        example4Shape2Position2();
+    }
+}
+
+function example4Draw(context) {
+    context.save();
+    context.translate(0.5, 0.5);
+    clearFrame(context, canvasCollection['example4']);
+
+    context.fillStyle = "limegreen";
+    context.beginPath();
+    context.arc(example4Shape1.position.x, example4Shape1.position.y, example4Shape1.radius, 0, 2 * Math.PI);
+    context.fill();
+
+    context.fillStyle = "violet";
+    context.beginPath();
+    context.arc(example4Shape2.position.x, example4Shape2.position.y, example4Shape2.radius, 0, 2 * Math.PI);
+    context.fill();
+
+    context.restore();
 }
 
 </script>
