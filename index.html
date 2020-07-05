@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en_us">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+    <h1>Manual Tween JS</h1>
+    <p>A simple tweening library that must be manually updated</p>
+    <h2>Example 1</h2>
+    <p>An elastic tween updated by requestAnimationFrame, that triggers another tween when the first is completed.</p>
+    <canvas id="example1"></canvas>
+    <h2>Example 2</h2>
+    <p>A bounce and quadratic tweens updated by requestAnimation, adjusting alpha and radius on different times.</p>
+    <canvas id="example2"></canvas>
+<script src="./manualtween.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", event => {
+        init();
+		animate();
+    });
+
+    var canvasCollection;
+    var contextCollection;
+
+    function animate() {
+        update();
+        draw(contextCollection);
+        requestAnimationFrame(animate);
+    }
+
+    function clearFrame(context, canvas) {
+        context.fillStyle = "#283848";
+        context.beginPath();
+        context.rect(0, 0, canvas.width, canvas.height);
+        context.fill();
+    }
+
+    function init() {
+        canvasCollection = {};
+        contextCollection = {};
+        onResize();
+        example1Init();
+        example2Init();
+    }
+
+    function update() {
+        example1Update();
+        example2Update();
+        Tween.update();
+    }
+
+    function draw(contextCollection) {
+        example1Draw(contextCollection['example1']);
+        example2Draw(contextCollection['example2']);
+    }
+
+    function onResize() {
+        for(let key in canvasCollection) {
+            let canvas = canvasCollection[key];
+            let context = contextCollection[key];
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            context.width = canvas.clientWidth / window.devicePixelRatio;
+            context.height = canvas.clientHeight / window.devicePixelRatio;
+        }
+    }
+
+    //Example 1
+
+    let example1Shape = {x: 60, y: 50, width: 10, height:10};
+
+    function example1Init() {
+        canvasCollection['example1'] = document.getElementById("example1");
+        contextCollection['example1'] = canvasCollection['example1'].getContext('2d');
+
+        example1Position1();
+    }
+
+    function example1Position1() {
+        Tween.create(example1Shape, {x: 240, y: 100}, 3000, Tween.Easing.Elastic.EaseOut, example1Position2);
+    }
+
+    function example1Position2() {
+        Tween.create(example1Shape, {x: 60, y: 50}, 3000, Tween.Easing.Elastic.EaseOut, example1Position1);
+    }
+
+    function example1Update() {
+    }
+
+    function example1Draw(context) {
+        context.save();
+        context.translate(0.5, 0.5);
+        clearFrame(context, canvasCollection['example1']);
+
+        context.fillStyle = "white";
+        context.save();
+        context.translate(example1Shape.x, example1Shape.y)
+        context.beginPath();
+        context.rect(-example1Shape.width / 2, -example1Shape.width / 2, example1Shape.width, example1Shape.height);
+        context.fill();
+        context.restore();
+
+        context.restore();
+    }
+
+    //Example 2
+
+    let example2Shape = {x: 150, y: 75, radius: 20, alpha: 1};
+
+    function example2Init() {
+        canvasCollection['example2'] = document.getElementById("example2");
+        contextCollection['example2'] = canvasCollection['example2'].getContext('2d');
+
+        example2Radius1();
+        example2Alpha1();
+    }
+
+    function example2Radius1() {
+        Tween.create(example2Shape, {radius: 40}, 2000, Tween.Easing.Bounce.EaseOut, example2Radius2);
+    }
+
+    function example2Radius2() {
+        Tween.create(example2Shape, {radius: 20}, 2000, Tween.Easing.Bounce.EaseOut, example2Radius1);
+    }
+
+    function example2Alpha1() {
+        Tween.create(example2Shape, {alpha: 0}, 1500, Tween.Easing.Quadratic.EaseInOut, example2Alpha2);
+    }
+
+    function example2Alpha2() {
+        Tween.create(example2Shape, {alpha: 1}, 1500, Tween.Easing.Quadratic.EaseInOut, example2Alpha1);
+    }
+
+    function example2Update() {
+    }
+
+    function example2Draw(context) {
+        context.save();
+        context.translate(0.5, 0.5);
+        clearFrame(context, canvasCollection['example2']);
+
+        context.fillStyle = "rgba(255, 255, 255," + example2Shape.alpha + ")";
+        context.beginPath();
+        context.arc(example2Shape.x, example2Shape.y, example2Shape.radius, 0, 2 * Math.PI);
+        context.fill();
+
+        context.restore();
+    }
+
+
+</script>
+</body>
+</html>
