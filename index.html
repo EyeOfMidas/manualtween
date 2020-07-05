@@ -3,6 +3,11 @@
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style type="text/css">
+        body{ 
+            margin: 8px;
+        }
+    </style>
 </head>
 <body>
     <h1>Manual Tween JS</h1>
@@ -13,6 +18,9 @@
     <h2>Example 2</h2>
     <p>A bounce and quadratic tweens updated by requestAnimation, adjusting alpha and radius on different times.</p>
     <canvas id="example2"></canvas>
+    <h2>Example 3</h2>
+    <p>An exponential tween, delayed using setTimeout, acting on a dom element's width and updated using setInterval</p>
+    <div id="example3" style="width: 300px; height: 150px; background-color: #283848; color: white;">Example 3 div</div>
 <script src="./manualtween.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", event => {
@@ -42,6 +50,7 @@
         onResize();
         example1Init();
         example2Init();
+        example3Init();
     }
 
     function update() {
@@ -148,6 +157,40 @@
         context.restore();
     }
 
+//Example 3
+
+let example3Shape = {width: 300};
+let example3Element;
+
+function example3Init() {
+    example3Element = document.getElementById("example3");
+
+    example3Width1();
+
+    setInterval(example3Update, 20);
+}
+
+function example3Width1() {
+    console.log(document.body.style);
+    let windowMargin = 24;
+
+    setTimeout(() => {
+        Tween.create(example3Shape, {width: window.innerWidth - windowMargin}, 1000, Tween.Easing.Exponential.EaseOut, example3Width2);
+    }, 1000);
+}
+
+function example3Width2() {
+    setTimeout(() => {
+    Tween.create(example3Shape, {width: 300}, 1000, Tween.Easing.Exponential.EaseOut, example3Width1);
+    }, 3000);
+}
+
+function example3Update() {
+    example3Element.style.width = Math.floor(example3Shape.width) + "px";
+}
+
+function example3Draw(context) {
+}
 
 </script>
 </body>
